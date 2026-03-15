@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>7aloshik – Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+  {% include 'navbar.html' %}
+
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Order the <em>Best of Egypt</em><br/>Delivered to You</h1>
+      <p>Authentic Egyptian flavours, straight from Cairo's streets</p>
+    </div>
+    <div class="hero-emojis">🥙🍲🧆🍮</div>
+  </section>
+
+  <section class="menu-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Today's Menu</h2>
+        <p>Fresh. Authentic. Egyptian.</p>
+      </div>
+
+      <div class="category-filters" id="categoryFilters">
+        <button class="filter-btn active" data-cat="all">All</button>
+        <button class="filter-btn" data-cat="Egyptian Classics">Egyptian Classics</button>
+        <button class="filter-btn" data-cat="Street Food">Street Food</button>
+        <button class="filter-btn" data-cat="Bakery">Bakery</button>
+        <button class="filter-btn" data-cat="Sweets">Sweets</button>
+        <button class="filter-btn" data-cat="Drinks">Drinks</button>
+      </div>
+
+      <div class="menu-grid" id="menuGrid">
+        {% for item in menu %}
+        <div class="menu-card" data-cat="{{ item.category }}">
+          <div class="menu-emoji">{{ item.emoji }}</div>
+          <div class="menu-info">
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.desc }}</p>
+            <span class="category-tag">{{ item.category }}</span>
+          </div>
+          <div class="menu-footer">
+            <span class="price">{{ item.price }} EGP</span>
+            <button class="btn-add" onclick="addToCart({{ item.id }}, '{{ item.name }}', {{ item.price }})">
+              + Add
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Toast -->
+  <div class="cart-toast" id="cartToast"></div>
+
+  <!-- Floating Cart Button -->
+  <a href="/cart" class="cart-fab" id="cartFab">
+    🛒 <span id="cartCount">0</span>
+  </a>
+
+  <script src="{{ url_for('static', filename='cart.js') }}"></script>
+  <script>
+    // Category filter
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cat = btn.dataset.cat;
+        document.querySelectorAll('.menu-card').forEach(card => {
+          card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+        });
+      });
+    });
+  </script>
+</body>
+</html>

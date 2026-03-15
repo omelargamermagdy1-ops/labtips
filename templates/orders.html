@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>7aloshik – My Orders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+  {% include 'navbar.html' %}
+
+  <div class="page-container">
+    <div class="page-header">
+      <h1>My Orders</h1>
+      <p>Track all your past and current orders</p>
+    </div>
+
+    <div id="ordersContainer">
+      <div class="loading-state">Loading orders…</div>
+    </div>
+  </div>
+
+  <script>
+    async function loadOrders() {
+      // Normal request — no extra header, backend uses session user_id
+      const res  = await fetch('/api/orders');
+      const data = await res.json();
+      renderOrders(data.orders);
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById('ordersContainer');
+      if (!orders || orders.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <span>📦</span>
+            <p>No orders yet. <a href="/home">Start ordering!</a></p>
+          </div>`;
+        return;
+      }
+
+      const statusColor = { Delivered:'#27ae60', 'In Kitchen':'#e67e22', 'On the Way':'#2980b9', Received:'#8e44ad' };
+
+      container.innerHTML = orders.map(order => `
+        <div class="order-card">
+          <div class="order-card-header">
+            <div>
+              <h3>Order #${order.id}</h3>
+              <span class="order-date">${order.created_at}</span>
+            </div>
+            <span class="status-badge" style="background:${statusColor[order.status]||'#555'}">${order.status}</span>
+          </div>
+          <div class="order-items-list">
+            ${order.items.map(i => `
+              <div class="order-item-row">
+                <span>${i.name}</span>
+                <span>×${i.qty}</span>
+                <span>${i.price * i.qty} EGP</span>
+              </div>`).join('')}
+          </div>
+          <div class="order-card-footer">
+            <span class="order-address">📍 ${order.address}</span>
+            <span class="order-total">Total: <strong>${order.total} EGP</strong></span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>
